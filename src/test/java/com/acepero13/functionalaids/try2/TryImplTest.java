@@ -8,7 +8,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class TryImplTest {
     private final Try<Integer> err = Try.failure(() -> new Exception("error"));
@@ -112,7 +117,7 @@ class TryImplTest {
 
     @Test
     void foldOptionalOfSuccessReturningNullReturnsOptional() {
-        Optional<Integer> actual = one.foldOptional(t -> null, t ->null);
+        Optional<Integer> actual = one.foldOptional(t -> null, t -> null);
         assertEquals(Optional.empty(), actual);
     }
 
@@ -154,27 +159,27 @@ class TryImplTest {
     @Test
     void executesFunctionOnSuccess() {
         one.ifSuccess(i -> assertEquals(1, i));
-        assertTrue(true);
+        one.ifFailure(i -> fail("Should not have a Failure"));
     }
 
 
     @Test
     void executesFunctionOnFailure() {
         err.ifFailure(i -> assertTrue(true));
-        assertTrue(true);
+        err.ifSuccess(i -> fail("Should not have a success"));
     }
 
     @Test
     void doesNotExecuteFailureFunctionOnSuccess() {
         one.ifFailure(i -> fail("Should not execute this function"));
-        assertTrue(true);
+        assertNotNull(one);
     }
 
 
     @Test
     void doesNotExecuteSuccessFunctionOnFailure() {
         err.ifSuccess(i -> fail("Should not execute this function"));
-        assertTrue(true);
+        assertNotNull(err);
     }
 
     @Test
