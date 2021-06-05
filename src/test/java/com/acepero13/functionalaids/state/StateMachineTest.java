@@ -43,7 +43,7 @@ class StateMachineTest {
         StateMachine<EnumState, TypeEvent> stateMachine =
                 new StateMachineBuilder<EnumState, TypeEvent>(EnumState.INIT)
                         .addTransition(EnumState.INIT, Run.class, EnumState.RUNNING)
-                        .onExit(EnumState.INIT, (e) -> {actualExit.set(e.value);})
+                        .onExit(EnumState.INIT, (e) -> actualExit.set(e.value))
                         .onEnter(EnumState.RUNNING, (e) -> actualEnter.set(e.value))
                         .addTransition(EnumState.RUNNING,  Run.class, EnumState.COMPLETED)
                         .build();
