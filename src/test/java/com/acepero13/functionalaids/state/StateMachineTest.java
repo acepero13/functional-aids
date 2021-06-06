@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StateMachineTest {
+    // TODO: Maybe is better two different builders
     private static final String TAG = StateMachineTest.class.getSimpleName();
 
     enum EnumState {
@@ -64,7 +65,7 @@ class StateMachineTest {
         }
     }
 
-    private static abstract class TypeEvent implements Event {
+    private static abstract class TypeEvent implements ClassEvent {
         public int value;
 
         public TypeEvent(int i) {

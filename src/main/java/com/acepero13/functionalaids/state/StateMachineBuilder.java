@@ -10,7 +10,7 @@ public class StateMachineBuilder<S extends Enum<S>, E extends Event> {
     private final Node<S, E> root;
 
     public StateMachineBuilder(S initialState) {
-        this.root = Node.root(initialState);
+        this.root = NodeEnum.of(initialState);
         nodes.put(initialState, root);
     }
 
@@ -19,8 +19,8 @@ public class StateMachineBuilder<S extends Enum<S>, E extends Event> {
         Objects.requireNonNull(event);
         Objects.requireNonNull(to);
 
-        Node<S, E> fromState = nodes.getOrDefault(from, Node.of(from));
-        Node<S, E> toState = nodes.getOrDefault(to, Node.of(to));
+        Node<S, E> fromState = nodes.getOrDefault(from, NodeEnum.of(from));
+        Node<S, E> toState = nodes.getOrDefault(to, NodeEnum.of(to));
 
 
         fromState.connect(toState, event);
@@ -31,7 +31,7 @@ public class StateMachineBuilder<S extends Enum<S>, E extends Event> {
 
 
     public StateMachine<S, E> build() {
-        return new StateMachineImp<S, E>(root);
+        return new StateMachineImp<>(root);
     }
 
 
@@ -40,35 +40,37 @@ public class StateMachineBuilder<S extends Enum<S>, E extends Event> {
         Objects.requireNonNull(event);
         Objects.requireNonNull(to);
 
-        Node<S, E> fromState = nodes.getOrDefault(from, Node.of(from));
-        Node<S, E> toState = nodes.getOrDefault(to, Node.of(to));
-        fromState.connect(toState, event);
+        Node<S, E> fromState = nodes.getOrDefault(from, NodeClass.of(from));
+        Node<S, E> toState = nodes.getOrDefault(to, NodeClass.of(to));
+        fromState.connect(toState, ClassEvent.of(event));
         nodes.put(from, fromState);
         nodes.put(to, toState);
         return this;
     }
 
     public StateMachineBuilder<S, E> onExit(S state, Consumer<E> consumer) {
-        Node<S, E> node = nodes.getOrDefault(state, Node.of(state));
+        Node<S, E> node = nodes.getOrDefault(state, NodeClass.of(state));
         node.addOnExitListener(consumer);
         return this;
     }
 
     public StateMachineBuilder<S, E> onEnter(S state, Consumer<E> consumer) {
-        Node<S, E> node = nodes.getOrDefault(state, Node.of(state));
+        Node<S, E> node = nodes.getOrDefault(state, NodeClass.of(state));
         node.addOnEnterListener(consumer);
         return this;
     }
 
-    public StateMachineBuilder<S, E> onExit(S state, Runnable consumer) {
-        Node<S, E> node = nodes.getOrDefault(state, Node.of(state));
-        node.addOnExitListener(consumer);
+    public StateMachineBuilder<S, E> onExit(S state, Runnable runnable) {
+        Node<S, E> node = nodes.getOrDefault(state, NodeEnum.of(state));
+        node.addOnExitListener(runnable);
         return this;
     }
 
     public StateMachineBuilder<S, E> onEnter(S state, Runnable consumer) {
-        Node<S, E> node = nodes.getOrDefault(state, Node.of(state));
+        Node<S, E> node = nodes.getOrDefault(state, NodeEnum.of(state));
         node.addOnEnterListener(consumer);
         return this;
     }
+
+
 }
