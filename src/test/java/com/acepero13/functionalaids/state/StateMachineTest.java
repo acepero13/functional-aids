@@ -2,9 +2,11 @@ package com.acepero13.functionalaids.state;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StateMachineTest {
     // TODO: Maybe is better two different builders
@@ -32,6 +34,31 @@ class StateMachineTest {
         assertEquals(EnumState.RUNNING, stateMachine.getState());
         stateMachine.apply(EnumEvent.END);
         assertEquals(EnumState.COMPLETED, stateMachine.getState());
+
+
+    }
+
+    @Test
+    void createsStateMachineOnEnterAndOnExitWithEnums() {
+        AtomicBoolean entered = new AtomicBoolean(false);
+        AtomicBoolean exited = new AtomicBoolean(false);
+        StateMachine<EnumState, EnumEvent> stateMachine =
+                new StateMachineBuilder<EnumState, EnumEvent>(EnumState.INIT)
+                        .addTransition(EnumState.INIT, EnumEvent.RUN, EnumState.RUNNING)
+                        .onExit(EnumState.RUNNING, () -> exited.set(true))
+                        .onEnter(EnumState.COMPLETED, () -> entered.set(true))
+                        .addTransition(EnumState.RUNNING, EnumEvent.END, EnumState.COMPLETED)
+                        .build();
+
+
+        assertEquals(EnumState.INIT, stateMachine.getState());
+        stateMachine.apply(EnumEvent.RUN);
+        assertEquals(EnumState.RUNNING, stateMachine.getState());
+        stateMachine.apply(EnumEvent.END);
+        assertEquals(EnumState.COMPLETED, stateMachine.getState());
+
+        assertTrue(exited.get());
+        assertTrue(entered.get());
 
 
     }

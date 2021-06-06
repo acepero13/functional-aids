@@ -7,4 +7,6 @@ public interface Event {
     default Optional<GenericDeclaration> generic(){
         return Optional.empty();
     }
+
+
 }
