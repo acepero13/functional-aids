@@ -9,14 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StateMachineTest {
-    // TODO: Maybe is better two different builders
-    private static final String TAG = StateMachineTest.class.getSimpleName();
 
     enum EnumState {
         INIT, RUNNING, COMPLETED
     }
 
-    enum EnumEvent implements Event{
+    enum EnumEvent implements Event {
         RUN, END
     }
 
@@ -73,7 +71,7 @@ class StateMachineTest {
                         .addTransition(EnumState.INIT, Run.class, EnumState.RUNNING)
                         .onExit(EnumState.INIT, (e) -> actualExit.set(e.value))
                         .onEnter(EnumState.RUNNING, (e) -> actualEnter.set(e.value))
-                        .addTransition(EnumState.RUNNING,  Run.class, EnumState.COMPLETED)
+                        .addTransition(EnumState.RUNNING, Run.class, EnumState.COMPLETED)
                         .build();
 
 
@@ -84,16 +82,15 @@ class StateMachineTest {
 
     }
 
-    private static class Run  extends TypeEvent{
-        private int value;
+    private static class Run extends TypeEvent {
 
         public Run(int i) {
             super(i);
         }
     }
 
-    private static abstract class TypeEvent implements ClassEvent {
-        public int value;
+    private static abstract class TypeEvent implements Event {
+        public final int value;
 
         public TypeEvent(int i) {
             value = i;

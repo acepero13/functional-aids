@@ -3,6 +3,7 @@ package com.acepero13.functionalaids.state;
 import java.lang.reflect.GenericDeclaration;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
@@ -73,12 +74,30 @@ public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
     }
 
     private Node<S, E> getOrAddNode(S state) {
-        Node<S, E> node = nodes.get(state);
-        if (node == null) {
-            node = Node.of(state);
-            nodes.put(state, node);
+        Optional<Node<S, E>> opNode = Optional.ofNullable(nodes.get(state));
+
+        if (opNode.isPresent()) {
+           return opNode.get();
         }
+        Node<S, E> node = Node.of(state);
+        nodes.put(state, node);
         return node;
+    }
+
+    private static class ClassEvent implements Event {
+
+        private final GenericDeclaration event;
+
+        private ClassEvent(GenericDeclaration event) {
+            this.event = event;
+        }
+        @SuppressWarnings("unchecked")
+        public static <E extends Event> E of(GenericDeclaration event) {
+            return (E) new ClassEvent(event);
+        }
+        public Optional<GenericDeclaration> generic(){
+            return Optional.of(event);
+        }
     }
 
 

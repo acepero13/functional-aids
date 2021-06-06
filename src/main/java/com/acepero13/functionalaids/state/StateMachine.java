@@ -2,7 +2,7 @@ package com.acepero13.functionalaids.state;
 
 import java.util.Optional;
 
-public class StateMachine<S extends Enum<S>, E extends Event>  {
+public final class StateMachine<S extends Enum<S>, E extends Event>  {
 
 
     private Node<S, E> state;
