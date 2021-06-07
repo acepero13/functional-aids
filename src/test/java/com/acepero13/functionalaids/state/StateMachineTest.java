@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StateMachineTest {
@@ -16,7 +17,7 @@ class StateMachineTest {
     }
 
     enum EnumEvent implements Event {
-        RUN, END
+        RUN, END, NOT_USED
     }
 
     @Test
@@ -86,6 +87,32 @@ class StateMachineTest {
         assertEquals(1, actualExit.get());
 
     }
+
+    @Test void applyNull(){
+        StateMachine<EnumState, EnumEvent> stateMachine =
+                new StateMachineBuilder<EnumState, EnumEvent>(EnumState.INIT)
+                        .addTransition(EnumState.INIT, EnumEvent.RUN, EnumState.RUNNING)
+                        .addTransition(EnumState.RUNNING, EnumEvent.END, EnumState.COMPLETED)
+                        .build();
+
+        assertThrows(NullPointerException.class, () -> {
+            stateMachine.apply(null);
+        });
+
+    }
+
+    @Test void applyNotIncludedEvent(){
+        StateMachine<EnumState, EnumEvent> stateMachine =
+                new StateMachineBuilder<EnumState, EnumEvent>(EnumState.INIT)
+                        .addTransition(EnumState.INIT, EnumEvent.RUN, EnumState.RUNNING)
+                        .addTransition(EnumState.RUNNING, EnumEvent.END, EnumState.COMPLETED)
+                        .build();
+
+        stateMachine.apply(EnumEvent.NOT_USED);
+        assertEquals(EnumState.INIT, stateMachine.getState());
+    }
+
+
 
     private static class Run extends TypeEvent {
 

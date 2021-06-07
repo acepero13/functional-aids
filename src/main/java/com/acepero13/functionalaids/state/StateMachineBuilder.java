@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
     private final HashMap<S, Node<S, E>> nodes = new HashMap<>();
@@ -47,6 +49,18 @@ public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
         return this;
     }
 
+    public StateMachineBuilder<S, E> addTransition(S from, E event, UnaryOperator<S> toFunc, Predicate<S> precondition) {
+        Node<S, E> fromState = getOrAddNode(from); // TODO: Add precondition
+        fromState.addTransitionFunction(event, toFunc, precondition, (Node<S,E> s) -> Optional.ofNullable(nodes.get(s.getState())).ifPresent(st -> nodes.put(s.getState(), st.mergeWith(s))));
+        return this;
+    }
+
+    public StateMachineBuilder<S, E> addTransition(S from, E event, UnaryOperator<S> toFunc) {
+        Node<S, E> fromState = getOrAddNode(from);
+        fromState.addTransitionFunction(event, toFunc,(s) -> true ,(Node<S,E> s) -> Optional.ofNullable(nodes.get(s.getState())).ifPresent(st -> nodes.put(s.getState(), st.mergeWith(s))));
+        return this;
+    }
+
     public StateMachineBuilder<S, E> onExit(S state, Consumer<E> consumer) {
         Node<S, E> node = getOrAddNode(state);
 
@@ -77,12 +91,13 @@ public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
         Optional<Node<S, E>> opNode = Optional.ofNullable(nodes.get(state));
 
         if (opNode.isPresent()) {
-           return opNode.get();
+            return opNode.get();
         }
         Node<S, E> node = Node.of(state);
         nodes.put(state, node);
         return node;
     }
+
 
     private static class ClassEvent implements Event {
 
@@ -91,11 +106,13 @@ public final class StateMachineBuilder<S extends Enum<S>, E extends Event> {
         private ClassEvent(GenericDeclaration event) {
             this.event = event;
         }
+
         @SuppressWarnings("unchecked")
         public static <E extends Event> E of(GenericDeclaration event) {
             return (E) new ClassEvent(event);
         }
-        public Optional<GenericDeclaration> generic(){
+
+        public Optional<GenericDeclaration> generic() {
             return Optional.of(event);
         }
     }
